@@ -10,8 +10,11 @@
     <!-- CSS -->
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
-
+    <link href="css/jquery-ui.css" rel="stylesheet">
+    <link href="css/jquery-ui.structure.min.css" rel="stylesheet">
+    <link href="css/jquery-ui.theme.min.css" rel="stylesheet">
   </head>
+
   <body>
     <div class="main-container better-color-primary-tint-light">
     <header class="main-header pale-teal">
@@ -20,19 +23,42 @@
       </div>
     </header>
     <div class="content-wrapper col">
-      <div class="sidebar col white">
-        <form class="calculator">
+      <div class="sidebar white">
+        <form class="calculator module">
 
-        <div class="purchase-price">
+        <div class="purchase-price module">
           <label for="purchase-price">Purchase price</label>
-          <input type="number" class="price"></input>
+          <div class="input">
+            <span class="input-icon-left">$</span>
+            <input type="text" class="price" value="0"></input>
+          </div>
+          <!-- slider -->
+          <div class="slider-wrapper module">
+              <div class="approval-range module">
+                <p class="range-label">Your approval range</p>
+                <div class="price-approval-range"></div>
+              </div>
+              <span class="slider-label left">$0</span><div id="price-slider"></div><span class="slider-label right">$100K</span>
+          </div>
          </div>
 
-         <div class="tradein-value">
+         <div class="tradein-value module">
             <div class="input-group">
-              <label for="purchase-price">Trade-in value</label>
-              <input type="number" class="value"></input>
-              <input type="number" class="discount"></input>
+              <label for="purchase-price">Trade-in value</label> 
+              <div class="input">
+                <span class="input-icon-left">$</span>
+                <input type="text" class="value" value="0"></input>
+                <span class="input-icon-right">%</span>
+                <input type="text" class="discount" value="0"></input>
+              </div>
+              <!-- slider -->
+            <div class="slider-wrapper module">
+              <div class="range-wrapper module">
+                <p class="range-label">Your approval range</p>
+                <div class="tradein-approval-range"></div>
+              </div>
+              <span class="slider-label left">0%</span><div id="tradein-slider"></div><span class="slider-label right">100%</span>
+            </div>
             </div> 
           </div>
 
@@ -46,46 +72,90 @@
           <p class="text">
             You can adjust the purchase price and/or trade-in value of your loan. The cars for which you qualify will update accordingly.
           </p>
+
           <div class="thumbnails">
-            <div class="thumbnail red-car">
-              <p class="item-color">
-                Red car
-              </p>
-              <p class="item-price">
-                $29,500
-              </p>
-            </div>
-
-            <div class="thumbnail blue-car">
-              <p class="item-color">
-                Blue car
-              </p>
-              <p class="item-price">
-                $29,000
-              </p>
-            </div>
-            <div class="thumbnail black-car">
-              <p class="item-color">
-                Black car
-              </p>
-              <p class="item-price">
-                $28,000
-              </p>
-            </div>
-
-            <div class="thumbnail yellow-car">
-              <p class="item-color">
-                Yellow car
-              </p>
-              <p class="item-price">
-                $27,500
-              </p>
-            </div>
-          </div>
+          </div> 
         </div>
       </div>
     </div>
     </div>
     <script src="js/libs/jquery-1.12.1.js"></script>
+    <script src="js/libs/jquery-ui.js"></script>
+    <script src="js/libs/underscore-1.8.3.js"></script>
+    <script src="js/sliders.js"></script>
+
+    <!-- Template (Requirejs)-->
+
+    <script type="text/template" class="template">
+      <%  _.each(newCars, function(car){ %>
+        <div class="thumbnail <%= car.color %>-car" data-price="<%= car.price %>">
+        <p class="item-color">
+          <%= capitalizeName(car.color) %>
+        </p>
+        <p class="item-price">
+          <%= formatNumber(car.price) %>
+        </p>
+        </div>
+      <% });  %>
+    </script>
+
+    <!-- Model, Controller (Requirejs)-->
+
+    <script type="text/javascript">
+      var cars = [
+            {
+                "color": "green",
+                "price": "25500"
+            },
+            {
+                "color": "red",
+                "price": "29500",
+            },
+            {
+                "color": "blue",
+                "price": "29000"
+            },
+            {
+                "color": "black",
+                "price": "28000"
+            },
+            {
+                "color": "yellow",
+                "price": "27500"
+            },
+            {
+                "color": "silver",
+                "price": "26000"
+            }
+        ];
+
+        var newCars = _.sortBy(cars, function(car) {
+          return car.price;
+        });
+
+        newCars = newCars.reverse();
+
+        var helpers = {
+          capitalizeName: function(name) {
+            var first = name.charAt(0).toUpperCase() + name.slice(1);
+            return first + " " + "Car";
+          },
+          formatNumber: function(number) {
+            return "$" + number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+          }
+        }
+
+        _.extend(cars, helpers);
+
+        var template = _.template(
+          $("script.template").html()
+        );
+
+        $('.thumbnails').html(
+          template(cars)
+        );
+
+    </script>
   </body>
 </html>
+
